@@ -10,7 +10,7 @@ import os.path
 import torch
 import torch.nn as nn
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig, BitsAndBytesConfig
 
 # from multi_token.training import (
 #     ModelArguments,
@@ -22,8 +22,8 @@ from multi_token.data_tools import encode_chat
 # import logging
 
 # from transformers import AutoTokenizer, AutoConfig, BitsAndBytesConfig
-# from huggingface_hub import hf_hub_download
-# from peft import PeftModel
+from huggingface_hub import hf_hub_download
+from peft import PeftModel
 # import torch
 
 from multi_token.model_utils import fix_tokenizer
@@ -146,6 +146,7 @@ def setup_model_and_tokenizer():
         model_lora_path = "sshh12/Mistral-7B-LoRA-ImageBind-LLAVA", # serve_args.model_lora_path,
         load_bits = 16, # serve_args.load_bits,
         cache_dir = "/app/models",
+        device_map = DEVICE,
     )
 
     return [
@@ -403,8 +404,8 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
 def load_trained_lora_model(
     model_name_or_path: str,
     model_lora_path: str,
-    model_cls: Optional[Type] = None,
-    modalities: Optional[List[Modality]] = None,
+#    model_cls: Optional[Type] = None,
+#    modalities: Optional[List[Modality]] = None,
     load_bits: int = 16,
     device_map: str = "auto",
     cache_dir: str = "",
@@ -430,10 +431,10 @@ def load_trained_lora_model(
     fix_tokenizer(tokenizer) # FIXME
 
     cfg = AutoConfig.from_pretrained(model_lora_path)
-    if model_cls is None:
-        model_cls = LANGUAGE_MODEL_NAME_TO_CLASS[cfg.model_cls]
-    if modalities is None:
-        modalities = MODALITY_BUILDERS[cfg.modality_builder]()
+#    if model_cls is None:
+    model_cls = LANGUAGE_MODEL_NAME_TO_CLASS[cfg.model_cls]
+#    if modalities is None:
+    modalities = MODALITY_BUILDERS[cfg.modality_builder]()
 
     print(f"Loading base model from {model_name_or_path} as {load_bits} bits")
     model = model_cls.from_pretrained(
@@ -441,6 +442,7 @@ def load_trained_lora_model(
     )
     model.modalities = modalities
 
+    # FIXME: Dowmload local !!!
     print(f"Loading projector weights for {[m.name for m in modalities]}")
     if os.path.exists(os.path.join(model_lora_path, "non_lora_trainables.bin")):
         non_lora_trainables = torch.load(
