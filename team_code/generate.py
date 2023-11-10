@@ -46,13 +46,16 @@ from evaluate import load
 # from imagebind import data
 # from imagebind.models.imagebind_model import ModalityType
 
-DEBUG = False # True
+MODEL = "mistralai/Mistral-7B-Instruct-v0.1"
 DEVICE = "cuda:0"
+
 EMB_DIM = 4096
 N_MODALITY_EMBS = 32
 
 #PROMPT = "You are smart AI assistant. Please read the dialog and answer the question. Be short and precise!\n"
 PROMPT = "This is a dialog with AI assistant.\n" # todo
+
+DEBUG = False # True
 
 # import torch
 # from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -130,13 +133,16 @@ def setup_model_and_tokenizer():
 
     print("Loading Mistral Instruct 7B v0.1...") # debug
 
-    tokenizer = AutoTokenizer.from_pretrained("/app/mistral", padding_side="left", use_fast=False)
-    model = AutoModelForCausalLM.from_pretrained("/app/mistral", torch_dtype=torch.float16).eval().to(DEVICE)
+    # tokenizer = AutoTokenizer.from_pretrained("/app/mistral", padding_side="left", use_fast=False)
+    # model = AutoModelForCausalLM.from_pretrained("/app/mistral", torch_dtype=torch.float16).eval().to(DEVICE)
+
+    tokenizer = AutoTokenizer.from_pretrained(MODEL, padding_side="left", use_fast=False)
+    model = AutoModelForCausalLM.from_pretrained(MODEL, torch_dtype=torch.float16).eval().to(DEVICE)
 
     print("Loading multimodal model...") # debug
 
     multimodel, multitokenizer = load_trained_lora_model(
-        model_name_or_path = "mistralai/Mistral-7B-Instruct-v0.1", # serve_args.model_name_or_path,
+        model_name_or_path = MODEL, # serve_args.model_name_or_path,
         model_lora_path = "sshh12/Mistral-7B-LoRA-ImageBind-LLAVA", # serve_args.model_lora_path,
         load_bits = 16, # serve_args.load_bits,
     )
@@ -264,11 +270,11 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
                 el["content"]
             )
 
-    print("\n=== query ===\n", query)
+    # print("\n=== query ===\n", query)
 
     encoded_dict = encode_chat(query, tokenizer, model[1].modalities)
 
-    print("\n=== encoded_dict ===\n", encoded_dict)
+    # print("\n=== encoded_dict ===\n", encoded_dict)
 
     # -- generate
 
@@ -325,27 +331,31 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
 
 # --- PPL ---
 
+# FIXME: Histroy Tensor !!!
+
 def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
 
     # print("\n === PPL HISTORY ===\n", history_tensor) # debug
 
-    if history_tensor is None:
+    # if history_tensor is None:
 
         # If the current history is empty - it is assigned to the system prompt
         # prompt = "This is a dialog with AI assistant.\n" # todo
-        prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
-        prompt_embeddings = model[0].model.embed_tokens(prompt_ids)
-        history_tensor = prompt_embeddings
+        
+        # prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
+        # prompt_embeddings = model[0].model.embed_tokens(prompt_ids)
+        # history_tensor = prompt_embeddings
 
-    else:
-        num = len(history_tensor[0])
+    # else:
+        # num = len(history_tensor[0])
         #history_tensor = torch.concat([history_tensor[0], get_text_emb(model[0], tokenizer, history_tensor[1])], dim=1)
-        history_tensor = torch.concat([history_tensor[0][num-1]["embd"], get_text_emb(model[0], tokenizer, history_tensor[1])], dim=1)
+        # history_tensor = torch.concat([history_tensor[0][num-1]["embd"], get_text_emb(model[0], tokenizer, history_tensor[1])], dim=1)
 
 
 
 
-    perplexity = evaluate.load("perplexity", module_type="metric")
+    perplexity = load("perplexity", module_type="metric")
+
     result = perplexity.compute(
         data = [ 
             cur_query_tuple[0], 
@@ -353,31 +363,31 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
         ], 
         # model_id='gpt2')
         # model_id='Mistral-7B-Instruct-v0.1')
-        model_id='Mistral-7B-Instruct-v0.1')
+        model_id = MODEL)
 
     return result.mean_perplexity
 
 
 
 
-    current_query = get_query_from_input(model[0], tokenizer, cur_query_tuple[0])
-    current_answer = get_text_emb(model[0], tokenizer, cur_query_tuple[1])
+#    current_query = get_query_from_input(model[0], tokenizer, cur_query_tuple[0])
+#    current_answer = get_text_emb(model[0], tokenizer, cur_query_tuple[1])
 
     # Input dialogue query with history
-    dialogue_emb = torch.concat([history_tensor, current_query], dim=1).to(DEVICE)
-    inputs_embeds=torch.concat([dialogue_emb, current_answer], dim=1)
+#    dialogue_emb = torch.concat([history_tensor, current_query], dim=1).to(DEVICE)
+#    inputs_embeds=torch.concat([dialogue_emb, current_answer], dim=1)
     
-    loss = nn.CrossEntropyLoss()
-    with torch.no_grad():
-        out_logits = model[0](inputs_embeds=inputs_embeds).logits
+#    loss = nn.CrossEntropyLoss()
+#    with torch.no_grad():
+#        out_logits = model[0](inputs_embeds=inputs_embeds).logits
 
-    shift_logits = out_logits[..., : -1, :].contiguous()
-    labels = tokenizer.encode(cur_query_tuple[1], add_special_tokens=False, return_tensors="pt")
-    context_before_labels = torch.LongTensor([-100] * dialogue_emb.shape[1]).unsqueeze(0)
-    labels = torch.concat([context_before_labels, labels], dim=1).to(DEVICE)
-    shift_labels = labels[..., 1:].contiguous()
+#    shift_logits = out_logits[..., : -1, :].contiguous()
+#    labels = tokenizer.encode(cur_query_tuple[1], add_special_tokens=False, return_tensors="pt")
+#    context_before_labels = torch.LongTensor([-100] * dialogue_emb.shape[1]).unsqueeze(0)
+#    labels = torch.concat([context_before_labels, labels], dim=1).to(DEVICE)
+#    shift_labels = labels[..., 1:].contiguous()
     
-    neg_log_likelihood = loss(shift_logits.transpose(1, 2), shift_labels)
-    ppl = torch.exp2(neg_log_likelihood)
+#    neg_log_likelihood = loss(shift_logits.transpose(1, 2), shift_labels)
+#    ppl = torch.exp2(neg_log_likelihood)
     
-    return ppl.item(), dialogue_emb
+#    return ppl.item(), dialogue_emb
