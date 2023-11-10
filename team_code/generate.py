@@ -34,9 +34,9 @@ from multi_token.modalities import MODALITY_BUILDERS
 
 # -- perplexity
 
-from evaluate import load
-perplexity = load("perplexity", module_type="metric")
-results = perplexity.compute(predictions=predictions, model_id='gpt2')
+# from evaluate import load
+# perplexity = load("perplexity", module_type="metric")
+# results = perplexity.compute(predictions=predictions, model_id='gpt2')
 
 # -- baseline
 
