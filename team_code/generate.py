@@ -178,6 +178,11 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
             "messages": []
         } 
 
+    query = {
+        "messages": [],
+        "imagebinds": [],
+    }    
+
     for el in cur_query_list:
         if el["type"] == "text":
             query["messages"].append({
