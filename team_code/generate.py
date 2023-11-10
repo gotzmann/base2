@@ -376,7 +376,9 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
         model_id = MODEL,
     )
 
-    return result.perplezities[] # result.mean_perplexity
+    print("\n=== RESULT ===\n", result)
+
+    return result.perplexities[0] # result.mean_perplexity
 
 
 
