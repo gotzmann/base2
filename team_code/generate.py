@@ -67,7 +67,7 @@ DEBUG = False # True
 # from imagebind.models import imagebind_model
 # from imagebind.models.imagebind_model import ModalityType
 
-from .utils import get_query_from_input, get_text_emb
+### from .utils import get_query_from_input, get_text_emb
 
 # DEVICE = torch.device("cuda:0")
 # DIALOGUE_DICT = {}

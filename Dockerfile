@@ -41,6 +41,9 @@ RUN apt update -y && \
     apt upgrade -y && \
     apt install -y --no-install-recommends mc nano git htop lsof make build-essential python3-pip
 
+RUN pip install Pillow
+RUN pip install evaluate
+
 # -- See standard Python libs: https://docs.python.org/3/library/index.html
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt 
