@@ -342,7 +342,16 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
 
     # print("\n === PPL HISTORY ===\n", history_tensor) # debug
 
-    # if history_tensor is None:
+#    if history_tensor is None:
+#        history_tensor = ([
+#            {
+#                "id": "",
+#                "session": "",
+#                "prompt": "",
+#                "response": "",
+#                "embd": "", # prompt_embeddings
+#            }
+#        ], "")
 
         # If the current history is empty - it is assigned to the system prompt
         # prompt = "This is a dialog with AI assistant.\n" # todo
@@ -351,14 +360,23 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
         # prompt_embeddings = model[0].model.embed_tokens(prompt_ids)
         # history_tensor = prompt_embeddings
 
-    # else:
+#    else:
         # num = len(history_tensor[0])
         #history_tensor = torch.concat([history_tensor[0], get_text_emb(model[0], tokenizer, history_tensor[1])], dim=1)
         # history_tensor = torch.concat([history_tensor[0][num-1]["embd"], get_text_emb(model[0], tokenizer, history_tensor[1])], dim=1)
 
+#        history_tensor = ([
+#            {
+#                "id": "",
+#                "session": "",
+#                "prompt": "",
+#                "response": "",
+#                "embd": "", # prompt_embeddings
+#            }
+#        ], "")
 
 
-    data = [ 
+    predictions=predictions = [ 
         cur_query_tuple[0], # model answer
         cur_query_tuple[1], # suggested answer
     ]
@@ -369,14 +387,14 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
     perplexity = load("perplexity", module_type="metric")
 
     result = perplexity.compute(
-        data = data, 
+        predictions = predictions, 
         model_id = "/app/mistral", #  MODEL,
         # cache_dir = "/app/models",
     )
 
     print("\n=== RESULT ===\n", result)
 
-    return result.perplexities[0] # result.mean_perplexity
+    return result['perplexities'][0] # result.mean_perplexity
 
 
 

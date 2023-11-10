@@ -43,7 +43,7 @@ COPY ./.checkpoints /app/.checkpoints
 
 RUN apt update -y && \
     apt upgrade -y && \
-    apt install -y --no-install-recommends mc nano git htop lsof make build-essential python3-pip
+    apt install -y --no-install-recommends mc nano git htop lsof make build-essential python3-pip ffmpeg
 
 RUN pip install Pillow
 RUN pip install evaluate
