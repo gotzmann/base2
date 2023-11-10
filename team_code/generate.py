@@ -185,8 +185,11 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
                 el["content"]
             )
 
+    print("\n=== query ===\n", query)
 
     encoded_dict = encode_chat(query, tokenizer, model.modalities)
+
+    print("\n=== encoded_dict ===\n", encoded_dict)
 
     with torch.inference_mode():
         output_ids = model.generate(
