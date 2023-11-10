@@ -8,13 +8,7 @@ from team_code.generate import setup_model_and_tokenizer, generate_text, get_ppl
 # --- MAIN ---
 
 dialog = [
-    [
-        [
-            { "type": "text", "content": "What common between those picture and sounds?" }, 
-            { "type": "image", "content": "00001.png" },
-            { "type": "audio", "content": "00000.wav" }
-        ]   
-    ],
+
     [
         [
             { "type": "text", "content": "What is the largest ocean in the world?" }
@@ -45,6 +39,13 @@ dialog = [
         [
             { "type": "text", "content": "Is it the oldest of all existing oceans?" }
         ]
+    ],
+    [
+        [
+            { "type": "text", "content": "What common between those picture and sounds?" }, 
+            { "type": "image", "content": "00001.png" },
+            { "type": "audio", "content": "00000.wav" }
+        ]   
     ]
 ]
 
