@@ -1,13 +1,13 @@
-from dataclasses import dataclass, field
-import logging
+# from dataclasses import dataclass, field
+# import logging
 
 # from flask import Flask, request, jsonify
 import transformers
 import torch
 
-from multi_token.training import (
-    ModelArguments,
-)
+# from multi_token.training import (
+#     ModelArguments,
+# )
 from multi_token.inference import load_trained_lora_model
 from multi_token.data_tools import encode_chat
 
@@ -34,6 +34,9 @@ import torch.nn.functional as F
 
 # from imagebind import data
 # from imagebind.models.imagebind_model import ModalityType
+
+DEBUG = False # True
+PROMPT = "You are smart AI assistant. Please read the dialog and answer the question. Be short and precise!\n"
 
 DEVICE = "cuda:0"
 EMB_DIM = 4096
@@ -111,6 +114,8 @@ def imagebind_huge(pretrained=False):
 # Function that returns model and tokenizer that will be used during the generation
 def setup_model_and_tokenizer():
 
+    print("\n=== SuperMachina v0.13 ===\n")
+
     model, tokenizer = load_trained_lora_model(
         model_name_or_path = "mistralai/Mistral-7B-Instruct-v0.1", # serve_args.model_name_or_path,
         model_lora_path = "sshh12/Mistral-7B-LoRA-ImageBind-LLAVA", # serve_args.model_lora_path,
@@ -159,6 +164,54 @@ def setup_model_and_tokenizer():
 # Function that generates the responses for dialodues queries w.r.t. history.
 def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
 
+    num = 0 # number of current iteration in history
+
+    # -- handle history
+
+    # If the current history is empty - it is assigned to the system prompt
+    if history_tensor is None:
+#        PROMPT = "This is a dialog with AI assistant.\n"
+        prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
+        prompt_embeddings = model[0].model.embed_tokens(prompt_ids)
+        # history_tensor = prompt_embeddings
+# debug        history_tensor = get_text_emb(model[0], tokenizer, PROMPT)
+        # debug
+        history_tensor = ([
+            {
+                "id": "",
+                "session": "",
+                "prompt": "",
+                "response": "",
+                "embd": prompt_embeddings
+            }
+        ], "")
+
+    else:
+        # print("\n === GET TEXT HISTORY ===\n", history_tensor) # debug
+        num = len(history_tensor[0])
+        embd = torch.concat(
+            [
+                history_tensor[0][num-1]["embd"],
+                get_text_emb(model[0], tokenizer, history_tensor[1])
+            ], dim=1)
+        history_tensor[0].append(
+            {
+                "id": "",
+                "session": "",
+                "prompt": "",
+                "response": "",
+                "embd": embd
+            })
+        
+    # -- update history
+
+    for part in cur_query_list:
+        if part["type"] == "text":
+            prompt = part["content"]
+            history_tensor[0][num]["prompt"] = prompt    
+        
+    # -- handle query    
+
     #    json={
     #       "messages": [{"role": "user", "content": "<imagebind> What is the animal in this sound?"}],
     #       "imagebinds": ["https://github.com/sshh12/multi_token/raw/main/.demo/imagebind-dog-audio.wav"],
@@ -200,6 +253,8 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
 
     print("\n=== encoded_dict ===\n", encoded_dict)
 
+    # -- generate
+
     with torch.inference_mode():
         output_ids = model.generate(
             input_ids = encoded_dict["input_ids"].unsqueeze(0).to(model.device),
@@ -210,14 +265,25 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
             modality_inputs = {
                 m.name: [encoded_dict[m.name]] for m in model.modalities
             },
+
+            pad_token_id=tokenizer.eos_token_id, # debug
         )
 
-    outputs = tokenizer.decode(
+    response = tokenizer.decode(
         output_ids[0, encoded_dict["input_ids"].shape[0] :],
         skip_special_tokens=True,
     ).strip()
 
-    return outputs, []
+    print("\n=== response ===\n", response)
+
+    # -- update history and return results
+
+    history_tensor[0][num]["response"] = response
+    history_tensor[0][num]["embd"] = torch.concat([history_tensor[0][num]["embd"], prompt], dim=1)
+
+    return response, history_tensor[0]
+
+    # return outputs, []
 
 #    if history_tensor is not None:
 #        history_tensor = torch.concat(
