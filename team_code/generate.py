@@ -263,7 +263,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     media = "<imagebind> "
     query = {
         "messages": [],
-        "imagebinds": [ "nil" ],
+        "imagebinds": [ "/app/transparent.png" ],
     } 
 
     if len(cur_query_list) > 1:
