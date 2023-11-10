@@ -197,12 +197,17 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
 
     num = 0 # number of current iteration in history
 
+    for part in cur_query_list:
+        if part["type"] == "text":
+            prompt = part["content"]
+            #history_tensor[0][num]["prompt"] = prompt 
+
     # -- handle history
 
     # If the current history is empty - it is assigned to the system prompt
     if history_tensor is None:
         # PROMPT = "This is a dialog with AI assistant.\n"
-        prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
+        # prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
         ### prompt_embeddings = model[0](prompt_ids).logits
 
         ### print("\n=== prompt_embeddings ===\n", prompt_embeddings)
@@ -215,9 +220,10 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
             {
                 "id": "",
                 "session": "",
-                "prompt": "",
+                "prompt": prompt,
                 "response": "",
                 "embd": "", # prompt_embeddings
+                "history": PROMPT  + "\nUser: " + prompt,
             }
         ], "")
 
@@ -229,21 +235,22 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
         #         history_tensor[0][num-1]["embd"],
         #         get_text_emb(model[0], tokenizer, history_tensor[1])
         #     ], dim=1)
+
+        # -- update history
+
         history_tensor[0].append(
             {
                 "id": "",
                 "session": "",
-                "prompt": "",
+                "prompt": prompt,
                 "response": "",
                 "embd": "", # embd
+                "history": history_tensor[0][num-1]["history"] + "\nUser: " + prompt,
             })
         
-    # -- update history
-
-    for part in cur_query_list:
-        if part["type"] == "text":
-            prompt = part["content"]
-            history_tensor[0][num]["prompt"] = prompt    
+    print("\n === HISTORY ===\n", history_tensor) # debug    
+        
+   
         
     # -- handle query    
 
@@ -255,11 +262,15 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     media = ""
     query = {
         "messages": [],
-        "imagebinds": [],
+        "imagebinds": None,
     } 
 
-    # if len(cur_query_list) > 1:
-    media = "<imagebind> "
+    if len(cur_query_list) > 1:
+        media = "<imagebind> "
+        query = {
+            "messages": [],
+            "imagebinds": [],
+        } 
 
     for el in cur_query_list:
         if el["type"] == "text":
@@ -307,6 +318,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
 
     # FIXME: Update history ?!
     history_tensor[0][num]["response"] = response
+    history_tensor[0][num]["history"] = history_tensor[0][num]["history"] + "\nBot: " + response
     # prompt = get_query_from_input(model[1], tokenizer, cur_query_list).to(DEVICE)
     # history_tensor[0][num]["embd"] = torch.concat([history_tensor[0][num]["embd"], prompt], dim=1)
 
