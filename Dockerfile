@@ -87,7 +87,8 @@ RUN pip install --upgrade git+https://github.com/lizagonch/ImageBind.git aac_dat
 
 # -- See standard Python libs: https://docs.python.org/3/library/index.html
 COPY requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt && pip install -e .
+RUN pip install -r /app/requirements.txt 
+RUN git clone https://github.com/sshh12/multi_token && cd multi_token && pip install -e .
 RUN pip install flash-attn --no-build-isolation
 # RUN pip install --no-cache-dir -r /app/requirements.txt
 
