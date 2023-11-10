@@ -142,8 +142,8 @@ def setup_model_and_tokenizer():
     print("Loading multimodal model...") # debug
 
     multimodel, multitokenizer = load_trained_lora_model(
-        model_name_or_path = MODEL, # serve_args.model_name_or_path,
-        model_lora_path = "sshh12/Mistral-7B-LoRA-ImageBind-LLAVA", # serve_args.model_lora_path,
+        model_name_or_path = "/app/mistral", # MODEL, # serve_args.model_name_or_path,
+        model_lora_path = "/app/lora", # "sshh12/Mistral-7B-LoRA-ImageBind-LLAVA", # serve_args.model_lora_path,
         load_bits = 16, # serve_args.load_bits,
         cache_dir = "/app/models",
         device_map = DEVICE,
@@ -359,8 +359,8 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
 
 
     data = [ 
-        cur_query_tuple[0], 
-        cur_query_tuple[1],
+        cur_query_tuple[0], # model answer
+        cur_query_tuple[1], # suggested answer
     ]
 
     print("\n=== DATA ===\n", data)
@@ -376,7 +376,7 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
         model_id = MODEL,
     )
 
-    return result.mean_perplexity
+    return result.perplezities[] # result.mean_perplexity
 
 
 
