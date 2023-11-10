@@ -34,7 +34,7 @@ from multi_token.modalities import MODALITY_BUILDERS
 
 # -- perplexity
 
-# from evaluate import load
+from evaluate import load
 # perplexity = load("perplexity", module_type="metric")
 # results = perplexity.compute(predictions=predictions, model_id='gpt2')
 
@@ -195,9 +195,9 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     if history_tensor is None:
         # PROMPT = "This is a dialog with AI assistant.\n"
         prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
-        prompt_embeddings = model[0](prompt_ids)
+        ### prompt_embeddings = model[0](prompt_ids).logits
 
-        print("\n=== prompt_embeddings ===\n", prompt_embeddings)
+        ### print("\n=== prompt_embeddings ===\n", prompt_embeddings)
 
         ### prompt_embeddings = model[0].embed_tokens(prompt_ids)
         # history_tensor = prompt_embeddings
@@ -209,25 +209,25 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
                 "session": "",
                 "prompt": "",
                 "response": "",
-                "embd": prompt_embeddings
+                "embd": "", # prompt_embeddings
             }
         ], "")
 
     else:
         # print("\n === GET TEXT HISTORY ===\n", history_tensor) # debug
         num = len(history_tensor[0])
-        embd = torch.concat(
-            [
-                history_tensor[0][num-1]["embd"],
-                get_text_emb(model[0], tokenizer, history_tensor[1])
-            ], dim=1)
+        # embd = torch.concat(
+        #     [
+        #         history_tensor[0][num-1]["embd"],
+        #         get_text_emb(model[0], tokenizer, history_tensor[1])
+        #     ], dim=1)
         history_tensor[0].append(
             {
                 "id": "",
                 "session": "",
                 "prompt": "",
                 "response": "",
-                "embd": embd
+                "embd": "", # embd
             })
         
     # -- update history
@@ -341,6 +341,24 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
         num = len(history_tensor[0])
         #history_tensor = torch.concat([history_tensor[0], get_text_emb(model[0], tokenizer, history_tensor[1])], dim=1)
         history_tensor = torch.concat([history_tensor[0][num-1]["embd"], get_text_emb(model[0], tokenizer, history_tensor[1])], dim=1)
+
+
+
+
+    perplexity = evaluate.load("perplexity", module_type="metric")
+    result = perplexity.compute(
+        data = [ 
+            cur_query_tuple[0], 
+            cur_query_tuple[1],
+        ], 
+        # model_id='gpt2')
+        # model_id='Mistral-7B-Instruct-v0.1')
+        model_id='Mistral-7B-Instruct-v0.1')
+
+    return result.mean_perplexity
+
+
+
 
     current_query = get_query_from_input(model[0], tokenizer, cur_query_tuple[0])
     current_answer = get_text_emb(model[0], tokenizer, cur_query_tuple[1])
