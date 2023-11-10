@@ -4,9 +4,9 @@ USER root
 WORKDIR /app
 
 # -- Build, tag, push and run image
-# sudo docker build --tag supermachina:0.15 .
-# sudo docker tag supermachina:0.15 cr.msk.sbercloud.ru/aijcontest/supermachina:0.15
-# sudo docker push cr.msk.sbercloud.ru/aijcontest/supermachina:0.15
+# sudo docker build --tag supermachina:0.17 .
+# sudo docker tag supermachina:0.17 cr.msk.sbercloud.ru/aijcontest/supermachina:0.17
+# sudo docker push cr.msk.sbercloud.ru/aijcontest/supermachina:0.17
 # sudo docker run --rm -it supermachina:0.15 -- sh
 
 # -- Build for multi platforms
