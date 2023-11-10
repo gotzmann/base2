@@ -412,7 +412,7 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
         predictions = data, 
         model_id = "/app/mistral", #  MODEL,
         # cache_dir = "/app/models",
-        device = DEVICE,
+        #device = DEVICE,
     )
 
     print("\n=== RESULT ===\n", result)
