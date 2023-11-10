@@ -39,7 +39,7 @@ WORKDIR /app
 
 COPY ./mistral /app/mistral
 COPY ./lora /app/lora
-COPY ./.checkpoints /app/.checkpoints
+# COPY ./.checkpoints /app/.checkpoints
 
 RUN apt update -y && \
     apt upgrade -y && \

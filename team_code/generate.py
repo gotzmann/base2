@@ -133,11 +133,11 @@ def setup_model_and_tokenizer():
 
     print("Loading Mistral Instruct 7B v0.1...") # debug
 
-    # tokenizer = AutoTokenizer.from_pretrained("/app/mistral", padding_side="left", use_fast=False)
-    # model = AutoModelForCausalLM.from_pretrained("/app/mistral", torch_dtype=torch.float16).eval().to(DEVICE)
+    tokenizer = AutoTokenizer.from_pretrained("/app/mistral", padding_side="left", use_fast=False)
+    model = AutoModelForCausalLM.from_pretrained("/app/mistral", torch_dtype=torch.float16).eval().to(DEVICE)
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL, padding_side="left", use_fast=False, cache_dir = "/app/models")
-    model = AutoModelForCausalLM.from_pretrained(MODEL, torch_dtype=torch.float16, cache_dir = "/app/models").eval().to(DEVICE)
+#    tokenizer = AutoTokenizer.from_pretrained(MODEL, padding_side="left", use_fast=False, cache_dir = "/app/models")
+#    model = AutoModelForCausalLM.from_pretrained(MODEL, torch_dtype=torch.float16, cache_dir = "/app/models").eval().to(DEVICE)
 
     print("Loading multimodal model...") # debug
 
