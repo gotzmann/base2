@@ -172,7 +172,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     if history_tensor is None:
 #        PROMPT = "This is a dialog with AI assistant.\n"
         prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
-        prompt_embeddings = model[0].model.embed_tokens(prompt_ids)
+        prompt_embeddings = model.embed_tokens(prompt_ids)
         # history_tensor = prompt_embeddings
 # debug        history_tensor = get_text_emb(model[0], tokenizer, PROMPT)
         # debug
@@ -192,7 +192,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
         embd = torch.concat(
             [
                 history_tensor[0][num-1]["embd"],
-                get_text_emb(model[0], tokenizer, history_tensor[1])
+                get_text_emb(model, tokenizer, history_tensor[1])
             ], dim=1)
         history_tensor[0].append(
             {
@@ -279,6 +279,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     # -- update history and return results
 
     history_tensor[0][num]["response"] = response
+    prompt = get_query_from_input(model, tokenizer, cur_query_list).to(DEVICE)
     history_tensor[0][num]["embd"] = torch.concat([history_tensor[0][num]["embd"], prompt], dim=1)
 
     return response, history_tensor[0]
