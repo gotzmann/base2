@@ -4,7 +4,7 @@ USER root
 WORKDIR /app
 
 # -- Build, tag, push and run image
-# sudo docker build --tag supermachina:0.23 .
+# sudo docker build --tag supermachina:0.25 .
 # sudo docker tag supermachina:0.23 cr.msk.sbercloud.ru/aijcontest/supermachina:0.23
 # sudo docker push cr.msk.sbercloud.ru/aijcontest/supermachina:0.23
 # sudo docker run --rm -it supermachina:0.23 -- sh
@@ -39,7 +39,7 @@ WORKDIR /app
 
 COPY ./mistral /app/mistral
 COPY ./lora /app/lora
-# COPY ./.checkpoints /app/.checkpoints
+COPY ./multi_token /app/multi_token
 
 RUN apt update -y && \
     apt upgrade -y && \
@@ -55,7 +55,8 @@ RUN pip install transformers
 RUN pip install https://github.com/enthought/mayavi/zipball/master
 RUN pip install --upgrade git+https://github.com/lizagonch/ImageBind.git aac_datasets torchinfo
 
-RUN git clone https://github.com/sshh12/multi_token && cd multi_token && pip install -e .
+# RUN git clone https://github.com/sshh12/multi_token && cd multi_token && pip install -e .
+RUN cd /app/multi_token && pip install -e .
 # RUN pip install flash-attn --no-build-isolation
 
 # -- See standard Python libs: https://docs.python.org/3/library/index.html

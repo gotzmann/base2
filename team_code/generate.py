@@ -259,7 +259,8 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     #       "imagebinds": ["https://github.com/sshh12/multi_token/raw/main/.demo/imagebind-dog-audio.wav"],
     #    },
 
-    media = ""
+    # media = ""
+    media = "<imagebind> "
     query = {
         "messages": [],
         "imagebinds": [ "nil" ],
