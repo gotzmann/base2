@@ -37,6 +37,10 @@ WORKDIR /app
 # COPY .checkpoints/imagebind_huge.pth /app/.checkpoints/imagebind_huge.pth
 # COPY ./Llama-2-7B-fp16 /app/Llama-2-7B-fp16
 
+COPY ./mistral /app/mistral
+COPY ./lora /app/lora
+COPY ./.checkpoints /app/.checkpoints
+
 RUN apt update -y && \
     apt upgrade -y && \
     apt install -y --no-install-recommends mc nano git htop lsof make build-essential python3-pip
@@ -44,11 +48,17 @@ RUN apt update -y && \
 RUN pip install Pillow
 RUN pip install evaluate
 
+RUN pip install requests
+RUN pip install sentencepiece
+RUN pip install https://github.com/enthought/mayavi/zipball/master
+RUN pip install --upgrade git+https://github.com/lizagonch/ImageBind.git aac_datasets torchinfo
+
+RUN git clone https://github.com/sshh12/multi_token && cd multi_token && pip install -e .
+# RUN pip install flash-attn --no-build-isolation
+
 # -- See standard Python libs: https://docs.python.org/3/library/index.html
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt 
-RUN git clone https://github.com/sshh12/multi_token && cd multi_token && pip install -e .
-RUN pip install flash-attn --no-build-isolation
 
 USER jovyan
 WORKDIR /home/jovyan
