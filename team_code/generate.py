@@ -365,14 +365,11 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
 
     print("\n=== DATA ===\n", data)
 
-    perplexity = load("perplexity", module_type="metric", cache_dir = "/app/models")
+    # perplexity = load("perplexity", module_type="metric", cache_dir = "/app/models")
+    perplexity = load("perplexity", module_type="metric")
 
     result = perplexity.compute(
-        #model_or_pipeline = model[0],
-        #tokenizer = tokenizer,
         data = data, 
-        # model_id='gpt2')
-        # model_id='Mistral-7B-Instruct-v0.1')
         model_id = MODEL,
     )
 
