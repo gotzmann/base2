@@ -2,13 +2,12 @@ evaluate
 huggingface_hub
 
 requests
-sentencepiece
 jsonlines
 typing
 
 transformers>=4.34.0
 accelerate>=0.21.0
-scipy>=1.11.3
+scipy
 bitsandbytes>=0.41.0
 datasets>=2.14.5
 sentencepiece>=0.1.99
