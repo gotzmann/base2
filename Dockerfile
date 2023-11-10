@@ -4,7 +4,7 @@ USER root
 WORKDIR /app
 
 # -- Build, tag, push and run image
-# sudo docker build --tag supermachina:0.25 .
+# sudo docker build --tag supermachina:0.27 .
 # sudo docker tag supermachina:0.23 cr.msk.sbercloud.ru/aijcontest/supermachina:0.23
 # sudo docker push cr.msk.sbercloud.ru/aijcontest/supermachina:0.23
 # sudo docker run --rm -it supermachina:0.23 -- sh
@@ -40,6 +40,7 @@ WORKDIR /app
 COPY ./mistral /app/mistral
 COPY ./lora /app/lora
 COPY ./multi_token /app/multi_token
+COPY ./transparent.png app/transparent.png
 
 RUN apt update -y && \
     apt upgrade -y && \
