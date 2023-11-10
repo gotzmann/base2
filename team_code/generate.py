@@ -376,7 +376,7 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
 #        ], "")
 
 
-    predictions=predictions = [ 
+    data = [ 
         cur_query_tuple[0], # model answer
         cur_query_tuple[1], # suggested answer
     ]
@@ -387,7 +387,7 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
     perplexity = load("perplexity", module_type="metric")
 
     result = perplexity.compute(
-        predictions = predictions, 
+        predictions = data, 
         model_id = "/app/mistral", #  MODEL,
         # cache_dir = "/app/models",
     )
@@ -432,7 +432,7 @@ def load_trained_lora_model(
 #    modalities: Optional[List[Modality]] = None,
     load_bits: int = 16,
     device_map: str = "auto",
-    cache_dir: str = "",
+#    cache_dir: str = "",
 ):
     load_kwargs = {"device_map": device_map}
 
@@ -451,7 +451,8 @@ def load_trained_lora_model(
 #    else:
 #        raise ValueError(f"Invalid load_bits: {load_bits}")
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=False, cache_dir = cache_dir)
+    #tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=False, cache_dir = cache_dir)
+    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=False)
     fix_tokenizer(tokenizer) # FIXME
 
     cfg = AutoConfig.from_pretrained(model_lora_path)
@@ -462,7 +463,8 @@ def load_trained_lora_model(
 
     print(f"Loading base model from {model_name_or_path} as {load_bits} bits")
     model = model_cls.from_pretrained(
-        model_name_or_path, low_cpu_mem_usage=True, config=cfg, **load_kwargs, cache_dir = cache_dir
+        #model_name_or_path, low_cpu_mem_usage=True, config=cfg, **load_kwargs, cache_dir = cache_dir
+        model_name_or_path, low_cpu_mem_usage=True, config=cfg, **load_kwargs
     )
     model.modalities = modalities
 
