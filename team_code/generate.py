@@ -164,17 +164,21 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     #       "imagebinds": ["https://github.com/sshh12/multi_token/raw/main/.demo/imagebind-dog-audio.wav"],
     #    },
 
-    query = {
-         "messages": [],
-         "imagebinds": [],
-    }
-
+    query = {}
     media = ""
+
     if len(cur_query_list) > 1:
-        media = "<imagebind> "  
+        media = "<imagebind> "
+        query = {
+            "messages": [],
+            "imagebinds": [],
+        }
+    else:
+        query = {
+            "messages": []
+        } 
 
     for el in cur_query_list:
-
         if el["type"] == "text":
             query["messages"].append({
                 "role": "user", 
@@ -195,7 +199,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
         output_ids = model.generate(
             input_ids = encoded_dict["input_ids"].unsqueeze(0).to(model.device),
             max_new_tokens = 400, # serve_args.max_new_tokens,
-            use_cache = True,
+            use_cache = False, # True,
             do_sample = True,
             temperature = 0.1, # serve_args.temperature,
             modality_inputs = {
