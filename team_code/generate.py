@@ -258,8 +258,8 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
         "imagebinds": [],
     } 
 
-    if len(cur_query_list) > 1:
-        media = "<imagebind> "
+    # if len(cur_query_list) > 1:
+    media = "<imagebind> "
 
     for el in cur_query_list:
         if el["type"] == "text":
