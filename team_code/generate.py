@@ -171,8 +171,8 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     # If the current history is empty - it is assigned to the system prompt
     if history_tensor is None:
 #        PROMPT = "This is a dialog with AI assistant.\n"
-        prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
-        prompt_embeddings = model.embed_tokens(prompt_ids)
+#        prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
+#        prompt_embeddings = model.embed_tokens(prompt_ids)
         # history_tensor = prompt_embeddings
 # debug        history_tensor = get_text_emb(model[0], tokenizer, PROMPT)
         # debug
@@ -182,25 +182,25 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
                 "session": "",
                 "prompt": "",
                 "response": "",
-                "embd": prompt_embeddings
+                "embd": "", #  prompt_embeddings
             }
         ], "")
 
     else:
         # print("\n === GET TEXT HISTORY ===\n", history_tensor) # debug
         num = len(history_tensor[0])
-        embd = torch.concat(
-            [
-                history_tensor[0][num-1]["embd"],
-                get_text_emb(model, tokenizer, history_tensor[1])
-            ], dim=1)
+#        embd = torch.concat(
+#            [
+#                history_tensor[0][num-1]["embd"],
+#                get_text_emb(model, tokenizer, history_tensor[1])
+#            ], dim=1)
         history_tensor[0].append(
             {
                 "id": "",
                 "session": "",
                 "prompt": "",
                 "response": "",
-                "embd": embd
+                "embd": "", # embd
             })
         
     # -- update history
@@ -217,24 +217,14 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     #       "imagebinds": ["https://github.com/sshh12/multi_token/raw/main/.demo/imagebind-dog-audio.wav"],
     #    },
 
-    query = {}
     media = ""
-
-    if len(cur_query_list) > 1:
-        media = "<imagebind> "
-        query = {
-            "messages": [],
-            "imagebinds": [],
-        }
-    else:
-        query = {
-            "messages": []
-        } 
-
     query = {
         "messages": [],
         "imagebinds": [],
-    }    
+    } 
+
+    if len(cur_query_list) > 1:
+        media = "<imagebind> "
 
     for el in cur_query_list:
         if el["type"] == "text":
