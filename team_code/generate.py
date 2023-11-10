@@ -145,7 +145,7 @@ def setup_model_and_tokenizer():
         model_name_or_path = "/app/mistral", # MODEL, # serve_args.model_name_or_path,
         model_lora_path = "/app/lora", # "sshh12/Mistral-7B-LoRA-ImageBind-LLAVA", # serve_args.model_lora_path,
         load_bits = 16, # serve_args.load_bits,
-        cache_dir = "/app/models",
+        #cache_dir = "/app/models",
         device_map = DEVICE,
     )
 
