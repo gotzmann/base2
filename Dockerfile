@@ -50,6 +50,7 @@ RUN pip install evaluate
 
 RUN pip install requests
 RUN pip install sentencepiece
+
 RUN pip install https://github.com/enthought/mayavi/zipball/master
 RUN pip install --upgrade git+https://github.com/lizagonch/ImageBind.git aac_datasets torchinfo
 
@@ -59,6 +60,8 @@ RUN git clone https://github.com/sshh12/multi_token && cd multi_token && pip ins
 # -- See standard Python libs: https://docs.python.org/3/library/index.html
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt 
+
+RUN pip install transformers
 
 USER jovyan
 WORKDIR /home/jovyan

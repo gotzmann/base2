@@ -380,13 +380,13 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
 #Expected format: {'predictions': Value(dtype='string', id=None)},
 #Input predictions: [[{'type': 'text', 'content': 'What common between those picture and sounds?'}, {'type': 'image', 'content': '00001.png'}, {'type': 'audio', 'content': '00000.wav'}], 'The Pacific Ocean is the largest and deepest of the world ocean basins.']
 
-    question = ""
-    for part in cur_query_tuple[0]:
-        if part["type"] == "text":
-            question = part["content"]
+#    question = ""
+#    for part in cur_query_tuple[0]:
+#        if part["type"] == "text":
+#            question = part["content"]
 
     data = [ 
-        question, # model answer
+        history_tensor[1], # model answer
         cur_query_tuple[1], # suggested answer
     ]
 
