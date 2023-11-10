@@ -195,7 +195,10 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     if history_tensor is None:
         # PROMPT = "This is a dialog with AI assistant.\n"
         prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
-        prompt_embeddings = model[0].encode(prompt_ids)
+        prompt_embeddings = model[0](prompt_ids)
+
+        print("\n=== prompt_embeddings ===\n", prompt_embeddings)
+
         ### prompt_embeddings = model[0].embed_tokens(prompt_ids)
         # history_tensor = prompt_embeddings
 # debug        history_tensor = get_text_emb(model[0], tokenizer, PROMPT)
