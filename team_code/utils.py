@@ -8,7 +8,6 @@ DEVICE = "cuda:0"
 EMB_DIM = 4096
 N_MODALITY_EMBS = 32
 
-
 # utils function that parses the format of the input query to a single sequence
 def get_query_from_input(model, tokenizer, input_list):
     base_model = model[0]
