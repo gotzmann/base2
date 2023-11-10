@@ -4,10 +4,10 @@ USER root
 WORKDIR /app
 
 # -- Build, tag, push and run image
-# sudo docker build --tag supermachina:0.13 .
-# sudo docker tag supermachina:0.13 cr.msk.sbercloud.ru/aijcontest/supermachina:0.13
-# sudo docker push cr.msk.sbercloud.ru/aijcontest/supermachina:0.13
-# sudo docker run --rm -it supermachina:0.13 -- sh
+# sudo docker build --tag supermachina:0.15 .
+# sudo docker tag supermachina:0.15 cr.msk.sbercloud.ru/aijcontest/supermachina:0.15
+# sudo docker push cr.msk.sbercloud.ru/aijcontest/supermachina:0.15
+# sudo docker run --rm -it supermachina:0.15 -- sh
 
 # -- Build for multi platforms
 # sudo docker buildx build --platform linux/amd64 -f ./Dockerfile --tag supermachina:0.2 .
@@ -50,6 +50,7 @@ RUN pip install evaluate
 
 RUN pip install requests
 RUN pip install sentencepiece
+RUN pip install transformers
 
 RUN pip install https://github.com/enthought/mayavi/zipball/master
 RUN pip install --upgrade git+https://github.com/lizagonch/ImageBind.git aac_datasets torchinfo
@@ -60,8 +61,6 @@ RUN git clone https://github.com/sshh12/multi_token && cd multi_token && pip ins
 # -- See standard Python libs: https://docs.python.org/3/library/index.html
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt 
-
-RUN pip install transformers
 
 USER jovyan
 WORKDIR /home/jovyan
