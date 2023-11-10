@@ -283,7 +283,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
                 el["content"]
             )
 
-    # print("\n=== query ===\n", query)
+    print("\n=== query ===\n", query)
 
     encoded_dict = encode_chat(query, tokenizer, model[1].modalities)
 
