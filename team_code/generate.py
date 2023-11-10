@@ -195,7 +195,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     if history_tensor is None:
         PROMPT = "This is a dialog with AI assistant.\n"
         prompt_ids = tokenizer.encode(PROMPT, add_special_tokens=False, return_tensors="pt").to(DEVICE)
-        prompt_embeddings = model.embed_tokens(prompt_ids)
+        prompt_embeddings = model[0].embed_tokens(prompt_ids)
         # history_tensor = prompt_embeddings
 # debug        history_tensor = get_text_emb(model[0], tokenizer, PROMPT)
         # debug
@@ -215,7 +215,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
         embd = torch.concat(
             [
                 history_tensor[0][num-1]["embd"],
-                get_text_emb(model, tokenizer, history_tensor[1])
+                get_text_emb(model[0], tokenizer, history_tensor[1])
             ], dim=1)
         history_tensor[0].append(
             {
@@ -262,21 +262,21 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
 
     print("\n=== query ===\n", query)
 
-    encoded_dict = encode_chat(query, tokenizer, model.modalities)
+    encoded_dict = encode_chat(query, tokenizer, model[1].modalities)
 
     print("\n=== encoded_dict ===\n", encoded_dict)
 
     # -- generate
 
     with torch.inference_mode():
-        output_ids = model.generate(
-            input_ids = encoded_dict["input_ids"].unsqueeze(0).to(model.device),
+        output_ids = model[1].generate(
+            input_ids = encoded_dict["input_ids"].unsqueeze(0).to(model[1].device),
             max_new_tokens = 400, # serve_args.max_new_tokens,
             use_cache = False, # True,
             do_sample = True,
             temperature = 0.1, # serve_args.temperature,
             modality_inputs = {
-                m.name: [encoded_dict[m.name]] for m in model.modalities
+                m.name: [encoded_dict[m.name]] for m in model[1].modalities
             },
 
             pad_token_id=tokenizer.eos_token_id, # debug
@@ -292,7 +292,7 @@ def generate_text(model, tokenizer, cur_query_list, history_tensor=None):
     # -- update history and return results
 
     history_tensor[0][num]["response"] = response
-    prompt = get_query_from_input(model, tokenizer, cur_query_list).to(DEVICE)
+    prompt = get_query_from_input(model[1], tokenizer, cur_query_list).to(DEVICE)
     history_tensor[0][num]["embd"] = torch.concat([history_tensor[0][num]["embd"], prompt], dim=1)
 
     return response, history_tensor[0]
@@ -338,7 +338,7 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
         #history_tensor = torch.concat([history_tensor[0], get_text_emb(model[0], tokenizer, history_tensor[1])], dim=1)
         history_tensor = torch.concat([history_tensor[0][num-1]["embd"], get_text_emb(model[0], tokenizer, history_tensor[1])], dim=1)
 
-    current_query = get_query_from_input(model, tokenizer, cur_query_tuple[0])
+    current_query = get_query_from_input(model[0], tokenizer, cur_query_tuple[0])
     current_answer = get_text_emb(model[0], tokenizer, cur_query_tuple[1])
 
     # Input dialogue query with history
