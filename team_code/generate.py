@@ -370,7 +370,8 @@ def get_ppl(model, tokenizer, cur_query_tuple, history_tensor=None):
 
     result = perplexity.compute(
         data = data, 
-        model_id = MODEL,
+        model_id = "/app/mistral", #  MODEL,
+        cache_dir = "/app/models",
     )
 
     print("\n=== RESULT ===\n", result)
